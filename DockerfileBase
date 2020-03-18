@@ -31,7 +31,7 @@ WORKDIR $WS
 ENV PKG_CONFIG_PATH=/workspace/install/lib/pkgconfig:/workspace/install/share/pkgconfig:$PKG_CONFIG_PATH
 ADD .git /workspace/.git
 
-#Install libfranka from source (as an example of how to build/install package)
+#Install libfranka from source (as an example of how to build/install libraries)
 ADD libfranka $WS/libfranka
 RUN cd $WS/libfranka && \
     rm -rf build && \
