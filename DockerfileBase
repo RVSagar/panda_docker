@@ -1,0 +1,71 @@
+#https://github.com/osrf/docker_images/blob/master/ros/kinetic/ubuntu/xenial/desktop-full/Dockerfile
+FROM osrf/ros:kinetic-desktop-xenial
+
+# Install some useful basics
+RUN apt-get update && \
+    apt-get install -y \
+      curl \
+      build-essential \
+      cmake \
+      software-properties-common \
+      psmisc \
+      htop \
+      mesa-utils \
+      git-all \
+      && \
+    rm -rf /var/lib/apt/lists/*
+
+## setup sources.list for ROS
+RUN sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list' && \
+    sudo apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
+
+# install ros
+RUN apt-get update && apt-get install -y \
+    ros-kinetic-desktop-full \
+    && rm -rf /var/lib/apt/lists/*
+
+ARG WS=/workspace
+RUN mkdir -p $WS
+WORKDIR $WS
+
+ENV PKG_CONFIG_PATH=/workspace/install/lib/pkgconfig:/workspace/install/share/pkgconfig:$PKG_CONFIG_PATH
+ADD .git /workspace/.git
+
+#Install libfranka from source (as an example of how to build/install package)
+ADD libfranka $WS/libfranka
+RUN cd $WS/libfranka && \
+    rm -rf build && \
+    mkdir build && \
+    cd build && \
+    cmake .. && \
+    make && \
+    make install && \
+    cd $WS && rm -rf libfranka/build
+
+
+# install Panda robot dependencies + any other packages that are needed
+RUN apt-get update && \
+    apt-get install -q -y \
+	#ros-kinetic-libfranka \
+	ros-kinetic-franka-ros \
+	ros-kinetic-moveit-simple-controller-manager \
+	ros-kinetic-joint-trajectory-controller \ 
+	ros-kinetic-robot-state-publisher \
+	ros-kinetic-moveit-planners-ompl \
+	ros-kinetic-joint-state-publisher \
+	ros-kinetic-moveit-simple-controller-manager \
+	ros-kinetic-xacro \
+	ros-kinetic-moveit-ros-visualization \
+	ros-kinetic-gazebo-ros \
+	ros-kinetic-camera-info-manager \
+	ros-kinetic-effort-controllers \
+	ros-kinetic-joint-state-controller \
+	ros-kinetic-moveit-visual-tools \
+	ros-kinetic-position-controllers \
+	ros-kinetic-moveit-commander && \
+    rm -rf /var/lib/apt/lists/*
+
+# setup entrypoint
+COPY ./docker/docker_entrypoint.sh /
+ENTRYPOINT ["/docker_entrypoint.sh"]
+CMD ["bash"]
