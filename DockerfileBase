@@ -1,5 +1,14 @@
+ARG cuda_version=9.0
+ARG cudnn_version=7
+ARG ubuntu_version=16.04
+
+FROM nvidia/cudagl:${cuda_version}-devel-ubuntu${ubuntu_version}
+#use the below command if you need cudnn
+# FROM nvidia/cuda:${cuda_version}-cudnn${cudnn_version}-devel-ubuntu16.04
+
+#seem to get libgl issues when using the below now? was working before...
 #https://github.com/osrf/docker_images/blob/master/ros/kinetic/ubuntu/xenial/desktop-full/Dockerfile
-FROM osrf/ros:kinetic-desktop-xenial
+#FROM osrf/ros:kinetic-desktop-xenial
 
 # Install some useful basics
 RUN apt-get update && \
@@ -12,6 +21,8 @@ RUN apt-get update && \
       htop \
       mesa-utils \
       git-all \
+      apt-transport-https \ 
+      sudo \
       && \
     rm -rf /var/lib/apt/lists/*
 
@@ -42,11 +53,27 @@ RUN cd $WS/libfranka && \
     make install && \
     cd $WS && rm -rf libfranka/build
 
-
+RUN apt-get update && \
+    apt-get install -q -y \
+    wget \
+    && \
+    rm -rf /var/lib/apt/lists/*
+#Upgrade Gazebo
+RUN sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list'
+RUN wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
+RUN apt-get update && apt-get install --no-install-recommends -y \
+    gazebo7 \
+    && rm -rf /var/lib/apt/lists/*
+    
 # install Panda robot dependencies + any other packages that are needed
 RUN apt-get update && \
     apt-get install -q -y \
 	#ros-kinetic-libfranka \
+	ros-kinetic-gazebo-ros-pkgs \
+	ros-kinetic-gazebo-ros-control \
+	ros-kinetic-joint-state-controller \
+	ros-kinetic-effort-controllers \
+	ros-kinetic-joint-trajectory-controller \
 	ros-kinetic-franka-ros \
 	ros-kinetic-moveit-simple-controller-manager \
 	ros-kinetic-joint-trajectory-controller \ 
@@ -58,12 +85,12 @@ RUN apt-get update && \
 	ros-kinetic-moveit-ros-visualization \
 	ros-kinetic-gazebo-ros \
 	ros-kinetic-camera-info-manager \
-	ros-kinetic-effort-controllers \
-	ros-kinetic-joint-state-controller \
 	ros-kinetic-moveit-visual-tools \
 	ros-kinetic-position-controllers \
 	ros-kinetic-moveit-commander && \
     rm -rf /var/lib/apt/lists/*
+
+
 
 # setup entrypoint
 COPY ./docker_entrypoint.sh /
