@@ -3,7 +3,7 @@
 TLDR: 
 1. ```git submodule update --init --recursive``` (to update libfranka)
 2. ```make``` (in root directory)
-3. ```make nvidia``` (if you have an NVIDIA GPU)
+3. ```make nvidia``` (if you have an NVIDIA GPU and are using Docker < 19.03, see below)
 4. ```./start.sh```
 5. Run a basic simulation with Panda: ```roslaunch panda_moveit_config demo.launch``` (this will open an RVIZ window with the Panda)
 
@@ -28,6 +28,7 @@ TLDR:
     ```
 1. Install nvidia-docker by following the instructions at https://github.com/NVIDIA/nvidia-docker
 1. Navigate to the folder you cloned this repo into.
+1. ```git submodule update --init --recursive``` (to update libfranka)
 1. From within this root directory:
     ```bash
     make
