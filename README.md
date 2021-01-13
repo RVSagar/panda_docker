@@ -28,6 +28,7 @@ TLDR:
     ```
 1. Install nvidia-docker by following the instructions at https://github.com/NVIDIA/nvidia-docker
 1. Navigate to the folder you cloned this repo into.
+1. ```git submodule update --init --recursive``` (to update libfranka)
 1. From within this root directory:
     ```bash
     make
