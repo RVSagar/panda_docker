@@ -87,6 +87,12 @@ RUN apt-get update && \
 	ros-kinetic-camera-info-manager \
 	ros-kinetic-moveit-visual-tools \
 	ros-kinetic-position-controllers \
+	ros-kinetic-trac-ik-kinematics-plugin \
+	ros-kinetic-node-manager-fkie \
+	ros-kinetic-eigen-conversions \
+	ros-kinetic-object-recognition-msgs \
+	ros-kinetic-roslint \
+	libignition-math2-dev \
 	ros-kinetic-moveit-commander && \
     rm -rf /var/lib/apt/lists/*
 
